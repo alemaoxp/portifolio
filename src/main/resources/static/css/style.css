@@ -1,0 +1,6 @@
+.card-glass {
+    /* Cria profundidade sem pesar visualmente */
+    backdrop-filter: blur(12px);  /* Desfoca o fundo */
+    background: rgba(30, 41, 59, 0.7);  /* Semi-transparente */
+    border: 1px solid rgba(255, 255, 255, 0.08);  /* Borda sutil */
+}

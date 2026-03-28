@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--color-bg-dark);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            width: 250px;
+        }
+
+        .sidebar-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-fast);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--color-primary-light);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+        }
+
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            color: var(--color-success);
+            margin-top: 0.25rem;
+        }
+
+        .chart-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-new {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--color-primary-light);
+        }
+
+        .status-read {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--color-primary);
+            color: var(--color-primary-light);
+        }
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-code"></i>
+            <span>Admin Panel</span>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" class="active" data-tab="dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#" data-tab="projects">
+                    <i class="fas fa-folder"></i> Projetos
+                </a>
+            </li>
+            <li>
+                <a href="#" data-tab="posts">
+                    <i class="fas fa-newspaper"></i> Blog
+                </a>
+            </li>
+            <li>
+                <a href="#" data-tab="messages">
+                    <i class="fas fa-envelope"></i> Mensagens
+                </a>
+            </li>
+            <li style="margin-top: auto;">
+                <a href="#" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="admin-header">
+            <div>
+                <h1 style="color: var(--text-primary);">Dashboard</h1>
+                <p style="color: var(--text-muted);">Visão geral do portfólio</p>
+            </div>
+            <a href="index.html" target="_blank" class="btn btn-secondary btn-sm">
+                <i class="fas fa-external-link-alt"></i> Ver Site
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total de Visitas</h3>
+                <div class="stat-value" id="stat-visits">0</div>
+                <div class="stat-change">Últimos 7 dias</div>
+            </div>
+            <div class="stat-card">
+                <h3>Projetos</h3>
+                <div class="stat-value" id="stat-projects">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Posts no Blog</h3>
+                <div class="stat-value" id="stat-posts">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Mensagens Novas</h3>
+                <div class="stat-value" id="stat-messages">0</div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Visitas por Dia</h3>
+            <canvas id="visitsChart" height="100"></canvas>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Mensagens Recentes</h3>
+            <div style="overflow-x: auto;">
+                <table class="data-table" id="messages-table">
+                    <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Mensagem</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+    import { authManager } from './js/modules/auth.js';
+    import { analytics } from './js/modules/analytics.js';
+    import { projectRepo } from './js/modules/projects.js';
+    import { blogManager } from './js/modules/blog.js';
+    import { contactManager } from './js/modules/contacts.js';
+    import { formatDate } from './js/utils/ui.js';
+
+    // Protege página
+    await authManager.init();
+
+const isAuth = await authManager.requireAuth();
+if (!isAuth) return;
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        authManager.logout();
+    });
+
+    // Carrega dados
+    async function loadDashboard() {
+        // Estatísticas
+        const stats = await analytics.getDashboardStats();
+        if (stats.success) {
+            document.getElementById('stat-visits').textContent = stats.data.totalVisits;
+
+            // Gráfico
+            const ctx = document.getElementById('visitsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: stats.data.dailyVisits.map(d => d.date.slice(5)),
+                    datasets: [{
+                        label: 'Visitas',
+                        data: stats.data.dailyVisits.map(d => d.count),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Contagem de projetos
+        const projects = await projectRepo.list();
+        if (projects.success) {
+            document.getElementById('stat-projects').textContent = projects.data.length;
+        }
+
+        // Mensagens
+        const messages = await contactManager.listMessages();
+        if (messages.success) {
+            document.getElementById('stat-messages').textContent =
+                messages.data.filter(m => m.status === 'new').length;
+
+            const tbody = document.querySelector('#messages-table tbody');
+            tbody.innerHTML = messages.data.slice(0, 5).map(msg => `
+                <tr>
+                    <td>${msg.name}</td>
+                    <td>${msg.email}</td>
+                    <td>${msg.message.substring(0, 50)}...</td>
+                    <td>
+                        <span class="status-badge status-${msg.status}">
+                            ${msg.status}
+                        </span>
+                    </td>
+                    <td>${formatDate(msg.created_at)}</td>
+                </tr>
+            `).join('');
+        }
+    }
+
+loadDashboard();
+</script>
+
+</body>
+</html>

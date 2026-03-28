@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabriel Santana | Backend Developer</title>
+    <meta name="description" content="Desenvolvedor Backend Java & Spring Boot - Itariri, SP">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<!-- Navegação -->
+<nav class="navbar" id="navbar">
+    <div class="container">
+        <a href="#" class="logo">&lt;Gabriel/&gt;</a>
+        <ul class="nav-menu">
+            <li><a href="#home" class="nav-link">Início</a></li>
+            <li><a href="#sobre" class="nav-link">Sobre</a></li>
+            <li><a href="#projetos" class="nav-link">Projetos</a></li>
+            <li><a href="#blog" class="nav-link">Blog</a></li>
+            <li><a href="#contato" class="nav-link">Contato</a></li>
+        </ul>
+        <a href="/login.html" class="btn btn-ghost btn-sm">
+            <i class="fas fa-lock"></i> Admin
+        </a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="hero">
+    <div class="container">
+        <div class="hero-content fade-in-up">
+            <div class="hero-badge">
+                <span>Disponível para oportunidades</span>
+            </div>
+            <h1 class="hero-title">
+                Construindo o futuro com<br>
+                <span class="gradient-text">Java & Spring Boot</span>
+            </h1>
+            <p class="hero-description">
+                Sou Gabriel Santana, desenvolvedor backend iniciante de Itariri, SP.
+                Transformo café em APIs robustas, sistemas escaláveis e soluções
+                que fazem a diferença.
+            </p>
+            <div class="hero-buttons">
+                <a href="#projetos" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Ver Projetos
+                </a>
+                <a href="#contato" class="btn btn-secondary">
+                    <i class="fas fa-envelope"></i> Falar Comigo
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-visual fade-in-up delay-200">
+            <div class="code-window">
+                <div class="code-header">
+                    <span class="code-dot red"></span>
+                    <span class="code-dot yellow"></span>
+                    <span class="code-dot green"></span>
+                    <span style="margin-left: auto; color: var(--text-muted); font-size: 0.8rem;">Developer.java</span>
+                </div>
+                <div class="code-content">
+                    <span class="code-line"><span class="keyword">public class</span> <span class="function">Developer</span> {</span>
+                    <span class="code-line">&nbsp;&nbsp;<span class="keyword">private</span> String <span class="string">nome</span> = <span class="string">"Gabriel"</span>;</span>
+                    <span class="code-line">&nbsp;&nbsp;<span class="keyword">private</span> String <span class="string">stack</span> = <span class="string">"Backend"</span>;</span>
+                    <span class="code-line">&nbsp;&nbsp;<span class="keyword">private</span> String[] <span class="string">techs</span> = {<span class="string">"Java"</span>, <span class="string">"Spring"</span>};</span>
+                    <span class="code-line">&nbsp;&nbsp;</span>
+                    <span class="code-line">&nbsp;&nbsp;<span class="keyword">public</span> String <span class="function">getObjective</span>() {</span>
+                    <span class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Criar soluções"</span>;</span>
+                    <span class="code-line">&nbsp;&nbsp;}</span>
+                    <span class="code-line">}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Projetos Section -->
+<section id="projetos" class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Portfólio</span>
+            <h2 class="section-title">Projetos em Destaque</h2>
+            <p class="section-description">
+                Aplicações reais desenvolvidas para aprimorar minhas habilidades
+            </p>
+        </div>
+
+        <div id="projects-container" class="projects-grid">
+            <!-- Projetos carregados dinamicamente via JS -->
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="projetos.html" class="btn btn-secondary">
+                Ver Todos os Projetos <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Habilidades Section -->
+<section id="habilidades" class="section" style="background: var(--color-bg-dark);">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Stack Técnico</span>
+            <h2 class="section-title">Tecnologias que Domino</h2>
+        </div>
+
+        <div class="skills-grid">
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fab fa-java"></i>
+                </div>
+                <h3 class="skill-name">Java</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Linguagem principal</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3 class="skill-name">Spring Boot</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Framework principal</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 70%"></div>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="skill-name">SQL</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">PostgreSQL & MySQL</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 65%"></div>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fab fa-git-alt"></i>
+                </div>
+                <h3 class="skill-name">Git</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Versionamento</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 60%"></div>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fab fa-docker"></i>
+                </div>
+                <h3 class="skill-name">Docker</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Containerização</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 50%"></div>
+                </div>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">
+                    <i class="fab fa-html5"></i>
+                </div>
+                <h3 class="skill-name">HTML & CSS</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Frontend básico</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 80%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contato Section -->
+<section id="contato" class="section contact-section">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <span class="section-tag">Contato</span>
+                <h3>Vamos construir algo juntos?</h3>
+                <p>
+                    Estou sempre aberto a novas oportunidades, colaborações
+                    em projetos open source ou apenas um bate-papo sobre tecnologia.
+                </p>
+
+                <div class="contact-links">
+                    <a href="https://github.com" target="_blank" class="contact-link">
+                        <i class="fab fa-github"></i>
+                        <div>
+                            <strong>GitHub</strong>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Meus projetos</p>
+                        </div>
+                    </a>
+
+                    <a href="https://wa.me/5513999999999?text=Olá,%20vim%20pelo%20seu%20portfólio" target="_blank" class="contact-link">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <strong>WhatsApp</strong>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Resposta rápida</p>
+                        </div>
+                    </a>
+
+                    <div class="contact-link" style="cursor: default;">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Localização</strong>
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Itariri, São Paulo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="contact-form" class="glass-card" style="padding: 2rem;">
+                <h3 style="color: var(--text-primary); margin-bottom: 1.5rem;">Envie uma mensagem</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Nome</label>
+                    <input type="text" name="name" class="form-input" placeholder="Seu nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-input" placeholder="seu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mensagem</label>
+                    <textarea name="message" class="form-textarea" placeholder="Sua mensagem..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p class="footer-text">
+            &copy; 2026 Gabriel Santana. Desenvolvido com
+            <i class="fas fa-heart" style="color: var(--color-error);"></i>
+            e muito café.
+        </p>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

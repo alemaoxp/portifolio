@@ -1,0 +1,15 @@
+# Ignorar arquivos gerados pelo build
+target/
+
+# Ignorar arquivos do sistema
+.DS_Store
+
+# Ignorar configs da IDE
+.idea/
+*.iml
+
+# Ignorar node_modules (se tiver frontend separado depois)
+node_modules/
+
+# Arquivos de ambiente
+.env
