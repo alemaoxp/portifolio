@@ -1,15 +1,21 @@
-# Ignorar arquivos gerados pelo build
+# Java
+*.class
+*.log
+
+# Maven
 target/
 
-# Ignorar arquivos do sistema
-.DS_Store
-
-# Ignorar configs da IDE
+# IntelliJ
 .idea/
 *.iml
+out/
 
-# Ignorar node_modules (se tiver frontend separado depois)
+# Sistema
+.DS_Store
+
+# Logs
+logs/
+
+# Node (caso tenha frontend junto)
 node_modules/
-
-# Arquivos de ambiente
-.env
+dist/
