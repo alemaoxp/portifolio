@@ -294,8 +294,6 @@ Este projeto é open-source e está disponível para fins educacionais e de port
 
 ---
 
-<div align="center">
-
-**Feito com ☕ Java e muito ❤️ por Gabriel Santana**
-
-</div>
+<p style="text-align: center;">
+<b>Feito com ☕ Java e muito ❤️ por Gabriel Santana</b>
+</p>
