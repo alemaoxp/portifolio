@@ -7,6 +7,7 @@
 
 import { supabase } from '../config/supabase.js';
 import { sanitizeInput } from '../utils/validators.js';
+import { enrichProjectsWithTechnologies, enrichProjectWithTechnologies } from '../utils/tech-detector.js';
 
 export class ProjectRepository {
     /**
@@ -33,7 +34,10 @@ export class ProjectRepository {
 
             if (error) throw error;
 
-            return { success: true, data };
+            // Enriquece projetos com tecnologias detectadas automaticamente
+            const enrichedData = enrichProjectsWithTechnologies(data);
+
+            return { success: true, data: enrichedData };
 
         } catch (error) {
             console.error('Erro ao listar projetos:', error);
@@ -54,7 +58,10 @@ export class ProjectRepository {
 
             if (error) throw error;
 
-            return { success: true, data };
+            // Enriquece com tecnologias detectadas
+            const enrichedData = enrichProjectWithTechnologies(data);
+
+            return { success: true, data: enrichedData };
 
         } catch (error) {
             console.error('Erro ao buscar projeto:', error);
@@ -67,13 +74,18 @@ export class ProjectRepository {
      */
     async create(projectData) {
         try {
+            // Detecta tecnologias automaticamente se não fornecidas
+            const detectedTechs = projectData.technologies && projectData.technologies.length > 0
+                ? projectData.technologies
+                : [];
+
             // Sanitização
             const cleanData = {
                 title: sanitizeInput(projectData.title),
                 description: sanitizeInput(projectData.description),
                 github_url: sanitizeInput(projectData.github_url),
                 image_url: sanitizeInput(projectData.image_url),
-                technologies: projectData.technologies || [],
+                technologies: detectedTechs,
                 featured: !!projectData.featured
             };
 
@@ -90,7 +102,10 @@ export class ProjectRepository {
 
             if (error) throw error;
 
-            return { success: true, data };
+            // Enriquece com tecnologias detectadas
+            const enrichedData = enrichProjectWithTechnologies(data);
+
+            return { success: true, data: enrichedData };
 
         } catch (error) {
             console.error('Erro ao criar projeto:', error);
@@ -103,12 +118,17 @@ export class ProjectRepository {
      */
     async update(id, projectData) {
         try {
+            // Detecta tecnologias automaticamente se não fornecidas
+            const detectedTechs = projectData.technologies && projectData.technologies.length > 0
+                ? projectData.technologies
+                : [];
+
             const cleanData = {
                 title: sanitizeInput(projectData.title),
                 description: sanitizeInput(projectData.description),
                 github_url: sanitizeInput(projectData.github_url),
                 image_url: sanitizeInput(projectData.image_url),
-                technologies: projectData.technologies || [],
+                technologies: detectedTechs,
                 featured: !!projectData.featured,
                 updated_at: new Date().toISOString()
             };
@@ -122,7 +142,10 @@ export class ProjectRepository {
 
             if (error) throw error;
 
-            return { success: true, data };
+            // Enriquece com tecnologias detectadas
+            const enrichedData = enrichProjectWithTechnologies(data);
+
+            return { success: true, data: enrichedData };
 
         } catch (error) {
             console.error('Erro ao atualizar projeto:', error);

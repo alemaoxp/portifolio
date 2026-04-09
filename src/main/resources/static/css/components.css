@@ -329,3 +329,88 @@
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
+
+/* ============================================
+   RESPONSIVIDADE - COMPONENTES
+   ============================================ */
+
+/* Tablet - 768px */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+
+    /* Navbar mobile */
+    .navbar .container {
+        height: 3.5rem;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .nav-link {
+        font-size: 0.9rem;
+    }
+
+    /* Botões menores em mobile */
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    /* Glass cards com menos padding */
+    .glass-card {
+        padding: 1.25rem;
+    }
+
+    /* Formulários mobile-friendly */
+    .form-input,
+    .form-textarea {
+        font-size: 16px; /* Previne zoom no iOS */
+        padding: 0.625rem 0.875rem;
+    }
+
+    /* Toast em mobile */
+    .toast {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+}
+
+/* Mobile - 480px */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 var(--space-sm);
+    }
+
+    .logo {
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-sm {
+        width: auto;
+    }
+
+    .glass-card {
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+    }
+}

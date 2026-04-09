@@ -1,16 +1,520 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Todos os Projetos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos os Projetos | Gabriel Santana</title>
+    <meta name="description" content="Confira todos os projetos desenvolvidos por Gabriel Santana">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+
+    <style>
+        /* Header da página */
+        .page-header {
+            padding-top: 8rem;
+            padding-bottom: 4rem;
+            text-align: center;
+            background: var(--gradient-dark);
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .page-header .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            transition: color var(--transition-fast);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--color-primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .breadcrumb .current {
+            color: var(--color-primary-light);
+            font-weight: 500;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+        }
+
+        .page-title .gradient-text {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-description {
+            font-size: 1.125rem;
+            color: var(--text-tertiary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Filtros */
+        .filters-bar {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.25rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 2rem;
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary-light);
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .filter-btn.active {
+            background: var(--gradient-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+
+        /* Contador de projetos */
+        .projects-count {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .projects-count strong {
+            color: var(--color-primary-light);
+        }
+
+        /* Seção principal */
+        .projects-page-section {
+            padding: var(--space-3xl) 0;
+            background: var(--color-bg-darkest);
+            min-height: calc(100vh - 400px);
+        }
+
+        /* Estado vazio */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-3xl) 0;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: var(--space-lg);
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .empty-state p {
+            color: var(--text-tertiary);
+            font-size: 1rem;
+        }
+
+        /* Footer simples */
+        .simple-footer {
+            background: var(--color-bg-dark);
+            border-top: 1px solid var(--glass-border);
+            padding: var(--space-2xl) 0;
+            text-align: center;
+        }
+
+        .simple-footer p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .page-header {
+                padding-top: 5rem;
+                padding-bottom: 2rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-description {
+                font-size: 1rem;
+            }
+
+            .filters-bar {
+                gap: var(--space-sm);
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .filter-btn {
+                padding: 0.4rem 0.875rem;
+                font-size: 0.8rem;
+            }
+
+            .breadcrumb {
+                font-size: 0.8rem;
+            }
+
+            .projects-count {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-header {
+                padding-top: 4.5rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .page-description {
+                font-size: 0.9rem;
+            }
+
+            .breadcrumb {
+                font-size: 0.75rem;
+                flex-wrap: wrap;
+            }
+
+            .filters-bar {
+                gap: var(--space-xs);
+            }
+
+            .filter-btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .projects-page-section {
+                padding: var(--space-xl) 0;
+            }
+
+            .empty-state {
+                padding: var(--space-2xl) 0;
+            }
+
+            .empty-state i {
+                font-size: 3rem;
+            }
+
+            .empty-state h3 {
+                font-size: 1.25rem;
+            }
+
+            .simple-footer {
+                padding: var(--space-xl) 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .page-description {
+                font-size: 0.85rem;
+            }
+
+            .filter-btn {
+                padding: 0.3rem 0.625rem;
+                font-size: 0.7rem;
+            }
+
+            .projects-count {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<h1>Todos os Projetos</h1>
+<!-- Navegação -->
+<nav class="navbar" id="navbar">
+    <div class="container">
+        <a href="index.html" class="logo">&lt;Gabriel/&gt;</a>
+        <ul class="nav-menu">
+            <li><a href="index.html#home" class="nav-link">Início</a></li>
+            <li><a href="index.html#sobre" class="nav-link">Sobre</a></li>
+            <li><a href="#" class="nav-link" style="color: var(--color-primary);">Projetos</a></li>
+            <li><a href="index.html#contato" class="nav-link">Contato</a></li>
+        </ul>
+        <a href="login.html" class="btn btn-ghost btn-sm">
+            <i class="fas fa-lock"></i> Admin
+        </a>
+    </div>
+</nav>
 
-<div id="projects-container"></div>
+<!-- Header da página -->
+<header class="page-header">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="index.html"><i class="fas fa-home"></i> Início</a>
+            <span class="separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="current">Todos os Projetos</span>
+        </nav>
 
-<script type="module" src="js/app.js"></script>
+        <h1 class="page-title">
+            <i class="fas fa-code" style="color: var(--color-primary);"></i>
+            <span class="gradient-text">Projetos</span>
+        </h1>
+
+        <p class="page-description">
+            Conheça todos os projetos desenvolvidos para aprimorar minhas
+            habilidades em Java, Spring Boot e tecnologias web.
+        </p>
+
+        <!-- Filtros por tecnologia -->
+        <div class="filters-bar" id="filters-bar">
+            <!-- Botões gerados dinamicamente -->
+        </div>
+
+        <div class="projects-count" id="projects-count">
+            Carregando projetos...
+        </div>
+    </div>
+</header>
+
+<!-- Projetos -->
+<section class="projects-page-section">
+    <div class="container">
+        <div id="projects-container" class="projects-grid">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+        </div>
+
+        <!-- Estado vazio -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <i class="fas fa-folder-open"></i>
+            <h3>Nenhum projeto encontrado</h3>
+            <p>Selecione outro filtro ou volte mais tarde.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="simple-footer">
+    <div class="container">
+        <p>
+            &copy; 2026 Gabriel Santana. Desenvolvido com
+            <i class="fas fa-heart" style="color: var(--color-error);"></i>
+            e muito café.
+        </p>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script type="module">
+    import { projectRepo } from './js/modules/projects.js';
+    import { detectTechnologies } from './js/utils/tech-detector.js';
+
+    // Mapa de ícones para tecnologias
+    const TECH_ICONS = {
+        'Java': 'fab fa-java',
+        'JavaScript': 'fab fa-js',
+        'TypeScript': 'fab fa-js',
+        'HTML': 'fab fa-html5',
+        'CSS': 'fab fa-css3-alt',
+        'Python': 'fab fa-python',
+        'PHP': 'fab fa-php',
+        'React': 'fab fa-react',
+        'Node.js': 'fab fa-node-js',
+        'Vue': 'fab fa-vuejs',
+        'Angular': 'fab fa-angular',
+        'Docker': 'fab fa-docker',
+        'Git': 'fab fa-git-alt',
+        'Spring Boot': 'fas fa-leaf',
+        'SQL': 'fas fa-database',
+        'Go': 'fab fa-golang',
+        'Ruby': 'fas fa-gem',
+        'C#': 'fas fa-code'
+    };
+
+    // Carrega todos os projetos
+    async function loadAllProjects() {
+        const container = document.getElementById('projects-container');
+        const emptyState = document.getElementById('empty-state');
+        const projectsCount = document.getElementById('projects-count');
+        const filtersBar = document.getElementById('filters-bar');
+
+        const result = await projectRepo.list({ limit: 50 });
+
+        console.log('📦 Todos os projetos:', result);
+
+        if (result.success && result.data.length > 0) {
+            // Coleta todas as tecnologias únicas
+            const allTechs = new Set();
+            result.data.forEach(project => {
+                (project.technologies || []).forEach(tech => allTechs.add(tech));
+            });
+
+            // Gera botões de filtro dinamicamente
+            filtersBar.innerHTML = `
+                <button class="filter-btn active" data-tech="all">
+                    <i class="fas fa-th"></i> Todos
+                </button>
+                ${Array.from(allTechs).sort().map(tech => {
+                    const icon = TECH_ICONS[tech] || 'fas fa-code';
+                    return `
+                        <button class="filter-btn" data-tech="${tech}">
+                            <i class="${icon}"></i> ${tech}
+                        </button>
+                    `;
+                }).join('')}
+            `;
+
+            // Atualiza contador
+            projectsCount.innerHTML = `Exibindo <strong>${result.data.length}</strong> projeto(s)`;
+
+            // Renderiza projetos
+            container.innerHTML = result.data.map(project => `
+                <article class="project-card" data-tech="${(project.technologies || []).join(',')}">
+                    <div class="project-image">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">${project.title}</h3>
+                        <p class="project-description">${project.description}</p>
+                        <div class="project-tech">
+                            ${(project.technologies || []).map(tech =>
+                                `<span class="tech-tag">${tech}</span>`
+                            ).join('')}
+                        </div>
+                        <a href="${project.github_url}" target="_blank" class="btn btn-small">
+                            <i class="fab fa-github"></i> Ver Código
+                        </a>
+                    </div>
+                </article>
+            `).join('');
+
+            // Log para debug
+            console.log('🏷️ Tecnologias detectadas:', Array.from(allTechs));
+
+            // Inicializa filtros
+            initFilters();
+        } else {
+            container.style.display = 'none';
+            emptyState.style.display = 'block';
+            projectsCount.innerHTML = 'Nenhum projeto encontrado';
+        }
+    }
+
+    // Filtros por tecnologia
+    function initFilters() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Atualiza botão ativo
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const tech = btn.dataset.tech;
+
+                // Filtra projetos
+                let visibleCount = 0;
+                projectCards.forEach(card => {
+                    const cardTechs = card.dataset.tech.split(',');
+
+                    if (tech === 'all' || cardTechs.includes(tech)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Atualiza contador
+                const projectsCount = document.getElementById('projects-count');
+                projectsCount.innerHTML = `Exibindo <strong>${visibleCount}</strong> projeto(s)`;
+
+                // Mostra/oculta estado vazio
+                const emptyState = document.getElementById('empty-state');
+                const container = document.getElementById('projects-container');
+
+                if (visibleCount === 0) {
+                    container.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    container.style.display = 'grid';
+                    emptyState.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Inicia carregamento
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAllProjects();
+    });
+</script>
 
 </body>
 </html>

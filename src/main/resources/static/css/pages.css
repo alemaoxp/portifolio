@@ -216,16 +216,10 @@
 
 .project-card {
     background: var(--gradient-card);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-xl);
+    border: 2px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
     overflow: hidden;
-    transition: all var(--transition-normal);
-}
-
-.project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg), var(--shadow-glow);
-    border-color: rgba(59, 130, 246, 0.3);
+    position: relative;
 }
 
 .project-image {
@@ -242,7 +236,6 @@
     font-size: 3rem;
     color: var(--color-primary);
     opacity: 0.5;
-    transition: all var(--transition-normal);
 }
 
 .project-card:hover .project-image i {
@@ -252,6 +245,20 @@
 
 .project-content {
     padding: var(--space-xl);
+    position: relative;
+    z-index: 1;
+    margin: var(--space-md);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-normal);
+}
+
+.project-card:hover .project-content {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.05);
+    background: rgba(15, 23, 42, 0.8);
 }
 
 .project-title {
@@ -282,6 +289,31 @@
     border-radius: var(--radius-sm);
     font-size: 0.75rem;
     font-weight: 500;
+}
+
+/* Botão do projeto */
+.project-content .btn.btn-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 0.625rem 1.25rem;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-lg);
+    color: var(--color-primary-light);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-normal);
+    text-decoration: none;
+}
+
+.project-content .btn.btn-small:hover {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 /* ============================================
@@ -430,6 +462,8 @@
 /* ============================================
    RESPONSIVIDADE
    ============================================ */
+
+/* iPad / Tablet - 968px */
 @media (max-width: 968px) {
     .hero .container {
         grid-template-columns: 1fr;
@@ -454,20 +488,182 @@
     }
 
     .projects-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .skills-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .hero-title {
+        font-size: 2.75rem;
+    }
+
+    .code-window {
+        max-width: 400px;
+        margin: 0 auto;
     }
 }
 
+/* Mobile - 640px */
 @media (max-width: 640px) {
-    .hero-title {
-        font-size: 2.5rem;
+    .hero {
+        min-height: auto;
+        padding-top: 6rem;
+        padding-bottom: 3rem;
     }
 
-    .section-title {
+    .hero-title {
         font-size: 2rem;
     }
 
-    .nav-menu {
-        display: none; /* Mobile menu via JS */
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .section-description {
+        font-size: 1rem;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+
+    .skills-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-md);
+    }
+
+    .skill-card {
+        padding: var(--space-lg);
+    }
+
+    .skill-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .skill-icon i {
+        font-size: 1.5rem;
+    }
+
+    /* Contact section mobile */
+    .contact-grid {
+        gap: var(--space-xl);
+    }
+
+    .contact-info h3 {
+        font-size: 1.25rem;
+    }
+
+    .contact-links {
+        gap: var(--space-sm);
+    }
+
+    /* Code window mobile */
+    .code-window {
+        max-width: 100%;
+    }
+
+    .code-content {
+        font-size: 0.75rem;
+        padding: var(--space-md);
+    }
+
+    /* Project cards mobile */
+    .project-image {
+        height: 160px;
+    }
+
+    .project-content {
+        padding: var(--space-lg);
+        margin: var(--space-sm);
+    }
+
+    .project-title {
+        font-size: 1.125rem;
+    }
+
+    .project-description {
+        font-size: 0.875rem;
+    }
+
+    /* Footer mobile */
+    .footer {
+        padding: var(--space-xl) 0;
+    }
+
+    .footer-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* Mobile pequeno - 480px */
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-description {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .section {
+        padding: var(--space-2xl) 0;
+    }
+
+    .section-header {
+        margin-bottom: var(--space-xl);
+    }
+
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .skill-card {
+        padding: var(--space-md);
+    }
+
+    .project-image {
+        height: 140px;
+    }
+
+    .project-content {
+        padding: var(--space-md);
+        margin: var(--space-xs);
+    }
+
+    .project-tech {
+        gap: var(--space-xs);
+    }
+
+    .tech-tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .project-content .btn.btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        width: 100%;
+        justify-content: center;
     }
 }

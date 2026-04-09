@@ -101,7 +101,10 @@ async function loadProjects() {
     const container = document.getElementById('projects-container');
     if (!container) return;
 
-    const result = await projectRepo.list({ featuredOnly: true, limit: 3 });
+    // Carrega todos os projetos (sem filtro de featured)
+    const result = await projectRepo.list({ limit: 6 });
+    
+    console.log('📦 Projetos carregados:', result);
 
     if (result.success && result.data.length > 0) {
         container.innerHTML = result.data.map(project => `
