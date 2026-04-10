@@ -17,11 +17,15 @@ Sou um desenvolvedor Backend apaixonado por criar soluções robustas, escaláve
 ### Backend
 - **Java 17** - Linguagem principal
 - **Spring Boot 3.2.5** - Framework para aplicações web
+- **Spring Security + JWT** - Autenticação e autorização
 - **Spring Data JPA** - ORM e persistência de dados
+- **Spring Boot Validation** - Validação de dados com `@Valid`, `@NotBlank`
 - **Spring Boot Actuator** - Monitoramento e health checks
 - **PostgreSQL** - Banco de dados relacional
-- **AWS SQS SDK** - Integração com filas (planejado)
+- **Swagger/OpenAPI** - Documentação interativa da API
+- **JUnit 5 + Mockito** - Testes unitários
 - **Maven** - Gerenciamento de dependências e build
+- **AWS SQS SDK** - Integração com filas (planejado)
 
 ### Frontend
 - **JavaScript ES6+** - Módulos ES, async/await
@@ -53,6 +57,30 @@ Sou um desenvolvedor Backend apaixonado por criar soluções robustas, escaláve
 
 ## ✨ Funcionalidades do Portfólio
 
+### 🔌 API REST Completa
+
+#### Endpoints Públicos (Não requer autenticação)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/projetos` | Lista todos os projetos |
+| `GET` | `/api/projetos/{id}` | Busca projeto por ID |
+| `GET` | `/api/projetos/destaques` | Lista projetos em destaque |
+| `GET` | `/api/projetos/busca?nome=` | Busca projetos por nome |
+
+#### Endpoints Protegidos (Requer autenticação JWT)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/api/projetos` | Cria novo projeto |
+| `PUT` | `/api/projetos/{id}` | Atualiza projeto existente |
+| `DELETE` | `/api/projetos/{id}` | Deleta projeto |
+| `POST` | `/api/auth/login` | Login e geração de token JWT |
+
+#### Documentação Interativa
+
+Acesse **Swagger UI** em: `http://localhost:8080/swagger-ui.html`
+
 ### 🌐 Site Público
 - **Hero Section** - Apresentação animada com code window visual
 - **Projetos** - Cards dinâmicos carregados do Supabase com filtros por tecnologia
@@ -79,31 +107,51 @@ Sou um desenvolvedor Backend apaixonado por criar soluções robustas, escaláve
 
 ## 🏗️ Arquitetura do Projeto
 
-```
-┌─────────────────────────────────────────────────────┐
-│                 FRONTEND (Browser)                  │
-│  HTML + CSS + JavaScript (ES Modules)               │
-│  ├── index.html (Portfolio público)                 │
-│  ├── projetos.html (Listagem com filtros)           │
-│  ├── login.html (Autenticação admin)                │
-│  └── admin.html (Dashboard gerencial)               │
-└──────────────────────┬──────────────────────────────┘
-                       │
-              Supabase JS SDK
-                       │
-┌──────────────────────▼──────────────────────────────┐
-│              SUPABASE (Backend-as-a-Service)        │
-│  ├── PostgreSQL (Projects, Contacts, Visits)        │
-│  ├── Authentication (Admin login)                   │
-│  └── Row Level Security (Políticas de acesso)       │
-└─────────────────────────────────────────────────────┘
+### API REST Completa
 
-┌─────────────────────────────────────────────────────┐
-│        SPRING BOOT (Railway - Static Server)        │
-│  ├── Serve arquivos estáticos                       │
-│  ├── Health checks (/actuator/health)               │
-│  └── Configurado para futuras APIs REST             │
-└─────────────────────────────────────────────────────┘
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    FRONTEND (Browser)                        │
+│  HTML + CSS + JavaScript (ES Modules)                        │
+│  ├── index.html (Portfólio público)                          │
+│  ├── projetos.html (Listagem com filtros)                    │
+│  ├── login.html (Autenticação admin)                         │
+│  └── admin.html (Dashboard gerencial)                        │
+└──────────────────────┬───────────────────────────────────────┘
+                       │ HTTP/REST
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│            SPRING BOOT API (Railway)                         │
+│                                                              │
+│  📁 Controller Layer (Endpoints REST)                        │
+│  ├── ProjetoController (CRUD de projetos)                    │
+│  └── AuthController (Login + JWT)                            │
+│                                                              │
+│  📁 Service Layer (Regras de negócio)                        │
+│  └── ProjetoService (Lógica de projetos)                     │
+│                                                              │
+│  📁 Repository Layer (Acesso a dados)                        │
+│  ├── ProjetoRepository (JPA)                                 │
+│  └── UsuarioRepository (JPA)                                 │
+│                                                              │
+│  🔒 Security Layer                                           │
+│  ├── SecurityConfig (Configuração Spring Security)           │
+│  ├── JwtAuthenticationFilter (Filtro JWT)                    │
+│  ├── JwtTokenProvider (Geração/validação de tokens)          │
+│  └── CustomUserDetailsService (Autenticação de usuários)     │
+│                                                              │
+│  📝 Documentation                                            │
+│  └── OpenApiConfig (Swagger/OpenAPI)                         │
+└──────────────────────┬───────────────────────────────────────┘
+                       │ JDBC
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│                 PostgreSQL (Railway)                         │
+│  ├── projetos (CRUD completo)                                │
+│  ├── usuarios (Autenticação admin)                           │
+│  ├── projeto_tecnologias (Tech stack por projeto)            │
+│  └── contacts, visits, posts (Migrado do Supabase)           │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Padrões de Design
@@ -218,11 +266,14 @@ projeto-backend/
 
 ## 🔒 Segurança
 
-- **Sanitização de Input** - Prevenção contra XSS via HTML entity encoding
-- **Validação Frontend** - Validação de email, campos obrigatórios, tamanho mínimo
-- **Row Level Security** - Políticas de acesso no Supabase
-- **Autenticação Admin** - Supabase Auth com sessão segura
-- **Prepared Statements** - Proteção contra SQL injection via ORM
+- **Autenticação JWT** - Tokens JSON Web Token para autenticação stateless
+- **Spring Security** - Configuração completa de segurança HTTP
+- **BCrypt Password Encoder** - Senhas criptografadas com BCrypt
+- **Validação de Input** - `@Valid`, `@NotBlank`, `@Size` em todos os endpoints
+- **Sanitização de Dados** - Prevenção contra XSS e SQL Injection
+- **Row Level Security** - Controle de acesso via roles (ADMIN, USER)
+- **CORS Configurado** - Políticas de origem cruzada definidas
+- **Tratamento de Exceções** - Responses padronizados para erros
 
 ---
 
@@ -261,19 +312,83 @@ projeto-backend/
 ### Pré-requisitos
 - Java 17+
 - Maven 3.8+
-- Node.js (para frontend opcional)
+- PostgreSQL (local ou Railway)
 
-### Backend
+### 1. Configurar Banco de Dados
+
+**Opção A: PostgreSQL Local**
+```bash
+# Instale PostgreSQL e crie um banco:
+createdb projeto_db
+```
+
+**Opção B: Usar Railway PostgreSQL**
+- Crie um projeto no Railway com PostgreSQL
+- Copie a `DATABASE_URL`
+
+### 2. Configurar Variáveis de Ambiente
+
+Edite `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/projeto_db
+spring.datasource.username=postgres
+spring.datasource.password=sua_senha
+```
+
+Ou use variáveis de ambiente:
+```bash
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/projeto_db
+export SPRING_DATASOURCE_USERNAME=postgres
+export SPRING_DATASOURCE_PASSWORD=sua_senha
+```
+
+### 3. Executar a Aplicação
+
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
-Acesso: `http://localhost:8080`
 
-### Configuração Supabase
-1. Crie projeto em [supabase.com](https://supabase.com)
-2. Execute as migrations para criar as tabelas
-3. Configure `js/config/supabase.js` com suas credenciais
+Acesso:
+- **Site**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Health Check**: http://localhost:8080/actuator/health
+- **API Docs**: http://localhost:8080/v3/api-docs
+
+### 4. Testar a API
+
+**Listar projetos:**
+```bash
+curl http://localhost:8080/api/projetos
+```
+
+**Login (obter token JWT):**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@portfolio.com", "senha":"admin123"}'
+```
+
+**Criar projeto (com autenticação):**
+```bash
+curl -X POST http://localhost:8080/api/projetos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer SEU_TOKEN_JWT" \
+  -d '{
+    "nome": "Meu Projeto",
+    "descricao": "Descrição do projeto",
+    "githubUrl": "https://github.com/user/projeto",
+    "tecnologias": ["Java", "Spring Boot"],
+    "destaque": true
+  }'
+```
+
+### 5. Executar Testes
+
+```bash
+mvn test
+```
 
 ---
 
