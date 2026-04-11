@@ -381,49 +381,32 @@
 </div>
 
 <script type="module">
-    console.log("🔥 SCRIPT NOVO CARREGADO");
-
-    import { supabase } from './js/config/supabase.js';
     import { authManager } from './js/modules/auth.js';
-    import { analytics } from './js/modules/analytics.js';
     import { projectRepo } from './js/modules/projects.js';
     import { contactManager } from './js/modules/contacts.js';
     import { formatDate } from './js/utils/ui.js';
 
     async function init() {
-        // Protege página
+        // Protege página - carrega token do localStorage se existir
         await authManager.init();
 
         const isAuth = await authManager.requireAuth();
         if (!isAuth) return;
 
-        // ================= DEBUG =================
-        console.log("🔍 DEBUG INICIADO");
-
-        const { data: { user } } = await supabase.auth.getUser();
-        console.log("👤 USER:", user);
-
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("🔐 SESSION:", session);
-
-        const { data: testData, error: testError } = await supabase
-            .from('contacts')
-            .select('*');
-
-        console.log("📦 TESTE DIRETO:", testData);
-        console.log("❌ ERRO:", testError);
-        // ========================================
-
-        // Mostra email do usuário
-        if (user) {
-            document.getElementById('user-email').textContent = user.email;
+        // Mostra email do usuário logado
+        if (authManager.currentUser) {
+            const emailEl = document.getElementById('user-email');
+            if (emailEl) emailEl.textContent = authManager.currentUser.email;
         }
 
         // Logout
-        document.getElementById('logout-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            authManager.logout();
-        });
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                authManager.logout();
+            });
+        }
 
         await loadDashboard();
     }
