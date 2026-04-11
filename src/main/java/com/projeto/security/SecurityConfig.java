@@ -46,9 +46,13 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/projetos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contatos").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/projetos/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/projetos/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/projetos/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/contatos/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/contatos/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/contatos/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
