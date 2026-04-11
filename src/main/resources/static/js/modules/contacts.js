@@ -1,13 +1,39 @@
 /**
  * MÓDULO DE CONTATOS
  *
- * Responsável pelo formulário de contato público
- * e gestão de mensagens no admin
+ * Consome a API Spring Boot REST ao invés do Supabase
  */
 
-import { supabase } from '../config/supabase.js';
+import { API_ENDPOINTS } from '../config/api.js';
 import { sanitizeInput, validateEmail } from '../utils/validators.js';
 import { showToast } from '../utils/ui.js';
+
+// Helper para requisições à API
+async function apiFetch(url, options = {}) {
+    const token = localStorage.getItem('auth_token');
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Erro na requisição' }));
+        throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    if (response.status === 204) return null;
+    return response.json();
+}
 
 export class ContactManager {
     /**
@@ -15,7 +41,6 @@ export class ContactManager {
      */
     async sendMessage({ name, email, message }) {
         try {
-            // Validação frontend
             if (!name?.trim() || !email?.trim() || !message?.trim()) {
                 throw new Error('Todos os campos são obrigatórios');
             }
@@ -28,25 +53,21 @@ export class ContactManager {
                 throw new Error('Mensagem muito curta (mínimo 10 caracteres)');
             }
 
-            // Sanitização
             const cleanData = {
-                name: sanitizeInput(name),
+                nome: sanitizeInput(name),
                 email: sanitizeInput(email),
-                message: sanitizeInput(message),
-                status: 'new'
+                mensagem: sanitizeInput(message)
             };
 
-            const { data, error } = await supabase
-                .from('contacts')
-                .insert([cleanData])
-                .select()
-                .single();
-
-            if (error) throw error;
+            // Usa a API REST ao invés do Supabase
+            await apiFetch(API_ENDPOINTS.contatos, {
+                method: 'POST',
+                body: JSON.stringify(cleanData)
+            });
 
             showToast('Mensagem enviada com sucesso! Retornarei em breve.', 'success');
 
-            return { success: true, data };
+            return { success: true };
 
         } catch (error) {
             console.error('Erro ao enviar mensagem:', error);
@@ -56,22 +77,16 @@ export class ContactManager {
     }
 
     /**
-     * Lista mensagens (admin only - RLS protege)
+     * Lista mensagens (admin only)
      */
     async listMessages(status = null) {
         try {
-            let query = supabase
-                .from('contacts')
-                .select('*')
-                .order('created_at', { ascending: false });
-
+            let url = API_ENDPOINTS.contatos;
             if (status) {
-                query = query.eq('status', status);
+                url += `?status=${status}`;
             }
 
-            const { data, error } = await query;
-
-            if (error) throw error;
+            const data = await apiFetch(url);
 
             return { success: true, data };
 
@@ -86,14 +101,10 @@ export class ContactManager {
      */
     async updateStatus(id, status) {
         try {
-            const { data, error } = await supabase
-                .from('contacts')
-                .update({ status })
-                .eq('id', id)
-                .select()
-                .single();
-
-            if (error) throw error;
+            const data = await apiFetch(`${API_ENDPOINTS.contatos}/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status })
+            });
 
             return { success: true, data };
 
