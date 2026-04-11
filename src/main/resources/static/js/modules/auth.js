@@ -1,82 +1,84 @@
 /**
- * MÓDULO DE AUTENTICAÇÃO
+ * MÓDULO DE AUTENTICACAO
  *
- * Responsabilidades:
- * - Login/logout
- * - Verificação de sessão
- * - Proteção de rotas
- * - Gerenciamento de roles
+ * Autenticação via API Spring Boot com JWT
  */
 
-import { supabase } from '../config/supabase.js';
+import { API_ENDPOINTS } from '../config/api.js';
 import { showToast } from '../utils/ui.js';
 
 export class AuthManager {
     constructor() {
         this.currentUser = null;
+        this.token = null;
         this.initialized = false;
     }
 
-    /**
-     * Inicializa o auth e configura listeners
-     */
     async init() {
         if (this.initialized) return;
 
-        // Verifica sessão existente
-        const { data: { session } } = await supabase.auth.getSession();
+        // Recupera token do localStorage
+        this.token = localStorage.getItem('auth_token');
 
-        if (session) {
-            this.currentUser = session.user;
-            this.setupAuthListener();
+        if (this.token) {
+            // Decodifica o JWT para obter informações do usuário
+            try {
+                const payload = JSON.parse(atob(this.token.split('.')[1]));
+                this.currentUser = {
+                    email: payload.sub,
+                    role: payload.authorities?.[0] || 'ADMIN'
+                };
+            } catch (error) {
+                console.error('Token inválido, removendo:', error);
+                this.logout();
+            }
         }
 
         this.initialized = true;
         return this.currentUser;
     }
 
-    /**
-     * Listener para mudanças de auth (login/logout em outra aba)
-     */
-    setupAuthListener() {
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                this.currentUser = session.user;
-                console.log('✅ Usuário logado:', this.currentUser.email);
-            } else if (event === 'SIGNED_OUT') {
-                this.currentUser = null;
-                console.log('👋 Usuário deslogado');
-                this.redirectToLogin();
-            }
-        });
-    }
-
-    /**
-     * Login com email/senha
-     */
     async login(email, password) {
         try {
-            // Validação básica
             if (!email || !password) {
                 throw new Error('Email e senha são obrigatórios');
             }
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email.trim(),
-                password: password
+            const response = await fetch(API_ENDPOINTS.auth, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email.trim(),
+                    senha: password
+                })
             });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ message: 'Credenciais inválidas' }));
+                throw new Error(error.message || 'Email ou senha incorretos');
+            }
 
-            this.currentUser = data.user;
+            const data = await response.json();
+
+            // Armazena token e informações do usuário
+            this.token = data.token;
+            this.currentUser = {
+                email: data.email,
+                role: data.role
+            };
+
+            localStorage.setItem('auth_token', data.token);
+
             showToast('Login realizado com sucesso!', 'success');
 
-            // Redireciona para admin se estiver na página de login
+            // Redireciona se estiver na página de login
             if (window.location.pathname.includes('login')) {
                 window.location.href = 'admin.html';
             }
 
-            return { success: true, user: data.user };
+            return { success: true, user: this.currentUser };
 
         } catch (error) {
             console.error('Erro no login:', error);
@@ -85,15 +87,12 @@ export class AuthManager {
         }
     }
 
-    /**
-     * Logout
-     */
     async logout() {
         try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-
+            this.token = null;
             this.currentUser = null;
+            localStorage.removeItem('auth_token');
+
             showToast('Logout realizado', 'info');
             this.redirectToLogin();
 
@@ -103,62 +102,37 @@ export class AuthManager {
         }
     }
 
-    /**
-     * Verifica se é admin (usando app_metadata ou user_metadata)
-     */
     isAdmin() {
         if (!this.currentUser) return false;
-        // Verifica no JWT token (configurado no Supabase Auth)
-        return this.currentUser.app_metadata?.role === 'admin' ||
-               this.currentUser.user_metadata?.role === 'admin';
+        return this.currentUser.role === 'ADMIN' || this.currentUser.role === 'ROLE_ADMIN';
     }
 
-    /**
-     * Protege página: redireciona se não autenticado
-     */
-async requireAuth() {
+    async requireAuth() {
+        if (!this.token) {
+            showToast('Área restrita. Faça login.', 'warning');
+            this.redirectToLogin();
+            return false;
+        }
 
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
-        showToast('Área restrita. Faça login.', 'warning');
-        this.redirectToLogin();
-        return false;
+        return true;
     }
 
-    this.currentUser = session.user;
-
-//    if (window.location.pathname.includes('admin') && !this.isAdmin()) {
-//        showToast('Acesso negado. Permissão insuficiente.', 'error');
-//        this.redirectToLogin();
-//        return false;
-//    }
-
-    return true;
-}
-
-    /**
-     * Redireciona para login
-     */
     redirectToLogin() {
         if (!window.location.pathname.includes('login')) {
             window.location.href = 'login.html';
         }
     }
 
-    /**
-     * Redireciona para admin se já estiver logado
-     */
-async redirectIfAuthenticated() {
+    async redirectIfAuthenticated() {
+        if (this.token && window.location.pathname.includes('login')) {
+            window.location.href = 'admin.html';
+        }
+    }
 
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (session && window.location.pathname.includes('login')) {
-        window.location.href = 'admin.html';
+    // Retorna o token JWT para usar em outras requisições
+    getToken() {
+        return this.token;
     }
 }
 
-}
-
-// Exporta instância única
 export const authManager = new AuthManager();

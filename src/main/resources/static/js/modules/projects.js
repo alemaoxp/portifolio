@@ -1,13 +1,41 @@
 /**
  * MÓDULO DE PROJETOS
  *
- * Padrão Repository: abstrai operações de banco
- * Todas as operações retornam { data, error } padronizado
+ * Consome a API Spring Boot REST ao invés do Supabase
  */
 
-import { supabase } from '../config/supabase.js';
+import { API_ENDPOINTS } from '../config/api.js';
 import { sanitizeInput } from '../utils/validators.js';
 import { enrichProjectsWithTechnologies, enrichProjectWithTechnologies } from '../utils/tech-detector.js';
+
+// Helper para fazer requisições à API
+async function apiFetch(url, options = {}) {
+    const token = localStorage.getItem('auth_token');
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Erro na requisição' }));
+        throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    // Se não tiver conteúdo (204), retorna null
+    if (response.status === 204) return null;
+
+    return response.json();
+}
 
 export class ProjectRepository {
     /**
@@ -15,27 +43,22 @@ export class ProjectRepository {
      */
     async list(options = {}) {
         try {
-            let query = supabase
-                .from('projects')
-                .select('*')
-                .order('created_at', { ascending: false });
+            let url = API_ENDPOINTS.projetos;
 
-            // Filtro: apenas destaques
             if (options.featuredOnly) {
-                query = query.eq('featured', true);
+                url = API_ENDPOINTS.destaques;
             }
 
-            // Limite para performance
+            const data = await apiFetch(url);
+
+            // Aplica limite se especificado
+            let filteredData = data || [];
             if (options.limit) {
-                query = query.limit(options.limit);
+                filteredData = filteredData.slice(0, options.limit);
             }
 
-            const { data, error } = await query;
-
-            if (error) throw error;
-
-            // Enriquece projetos com tecnologias detectadas automaticamente
-            const enrichedData = enrichProjectsWithTechnologies(data);
+            // Enriquece projetos com tecnologias detectadas
+            const enrichedData = enrichProjectsWithTechnologies(filteredData);
 
             return { success: true, data: enrichedData };
 
@@ -50,13 +73,8 @@ export class ProjectRepository {
      */
     async getById(id) {
         try {
-            const { data, error } = await supabase
-                .from('projects')
-                .select('*')
-                .eq('id', id)
-                .single();
-
-            if (error) throw error;
+            const url = `${API_ENDPOINTS.projetos}/${id}`;
+            const data = await apiFetch(url);
 
             // Enriquece com tecnologias detectadas
             const enrichedData = enrichProjectWithTechnologies(data);
@@ -74,35 +92,28 @@ export class ProjectRepository {
      */
     async create(projectData) {
         try {
-            // Detecta tecnologias automaticamente se não fornecidas
             const detectedTechs = projectData.technologies && projectData.technologies.length > 0
                 ? projectData.technologies
                 : [];
 
-            // Sanitização
             const cleanData = {
-                title: sanitizeInput(projectData.title),
-                description: sanitizeInput(projectData.description),
-                github_url: sanitizeInput(projectData.github_url),
-                image_url: sanitizeInput(projectData.image_url),
-                technologies: detectedTechs,
-                featured: !!projectData.featured
+                nome: sanitizeInput(projectData.title),
+                descricao: sanitizeInput(projectData.description),
+                githubUrl: sanitizeInput(projectData.github_url),
+                imageUrl: sanitizeInput(projectData.image_url),
+                tecnologias: detectedTechs,
+                destaque: !!projectData.featured
             };
 
-            // Validação
-            if (!cleanData.title || !cleanData.description) {
+            if (!cleanData.nome || !cleanData.descricao) {
                 throw new Error('Título e descrição são obrigatórios');
             }
 
-            const { data, error } = await supabase
-                .from('projects')
-                .insert([cleanData])
-                .select()
-                .single();
+            const data = await apiFetch(API_ENDPOINTS.projetos, {
+                method: 'POST',
+                body: JSON.stringify(cleanData)
+            });
 
-            if (error) throw error;
-
-            // Enriquece com tecnologias detectadas
             const enrichedData = enrichProjectWithTechnologies(data);
 
             return { success: true, data: enrichedData };
@@ -118,31 +129,24 @@ export class ProjectRepository {
      */
     async update(id, projectData) {
         try {
-            // Detecta tecnologias automaticamente se não fornecidas
             const detectedTechs = projectData.technologies && projectData.technologies.length > 0
                 ? projectData.technologies
                 : [];
 
             const cleanData = {
-                title: sanitizeInput(projectData.title),
-                description: sanitizeInput(projectData.description),
-                github_url: sanitizeInput(projectData.github_url),
-                image_url: sanitizeInput(projectData.image_url),
-                technologies: detectedTechs,
-                featured: !!projectData.featured,
-                updated_at: new Date().toISOString()
+                nome: sanitizeInput(projectData.title),
+                descricao: sanitizeInput(projectData.description),
+                githubUrl: sanitizeInput(projectData.github_url),
+                imageUrl: sanitizeInput(projectData.image_url),
+                tecnologias: detectedTechs,
+                destaque: !!projectData.featured
             };
 
-            const { data, error } = await supabase
-                .from('projects')
-                .update(cleanData)
-                .eq('id', id)
-                .select()
-                .single();
+            const data = await apiFetch(`${API_ENDPOINTS.projetos}/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(cleanData)
+            });
 
-            if (error) throw error;
-
-            // Enriquece com tecnologias detectadas
             const enrichedData = enrichProjectWithTechnologies(data);
 
             return { success: true, data: enrichedData };
@@ -158,12 +162,9 @@ export class ProjectRepository {
      */
     async delete(id) {
         try {
-            const { error } = await supabase
-                .from('projects')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
+            await apiFetch(`${API_ENDPOINTS.projetos}/${id}`, {
+                method: 'DELETE'
+            });
 
             return { success: true };
 
