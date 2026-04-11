@@ -6,7 +6,7 @@
  */
 
 // ⚠️ ALTERE AQUI para sua URL do Railway!
-export const API_BASE_URL = "https://SEU-APP.up.railway.app";
+export const API_BASE_URL = "portifolio-production-1540.up.railway.app";
 
 // Endpoints da API
 export const API_ENDPOINTS = {
