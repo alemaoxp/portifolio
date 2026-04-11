@@ -460,22 +460,30 @@
 
         if (messages.success) {
             document.getElementById('stat-messages').textContent =
-                messages.data.filter(m => m.status === 'new' || !m.status).length;
+                messages.data.filter(m => m.status === 'novo' || m.status === 'new').length;
 
             const tbody = document.querySelector('#messages-table tbody');
-            tbody.innerHTML = messages.data.slice(0, 5).map(msg => `
+            tbody.innerHTML = messages.data.slice(0, 5).map(msg => {
+                const mensagem = msg.mensagem || msg.message || '';
+                const nome = msg.nome || msg.name || 'Anônimo';
+                const email = msg.email || '';
+                const status = msg.status || 'novo';
+                const criadoEm = msg.criadoEm || msg.created_at;
+                const displayMsg = mensagem.length > 50 ? mensagem.substring(0, 50) + '...' : mensagem;
+                
+                return `
                 <tr>
-                    <td>${msg.name}</td>
-                    <td>${msg.email}</td>
-                    <td>${msg.message.substring(0, 50)}...</td>
+                    <td>${nome}</td>
+                    <td>${email}</td>
+                    <td>${displayMsg}</td>
                     <td>
-                        <span class="status-badge status-${msg.status || 'new'}">
-                            ${msg.status || 'new'}
+                        <span class="status-badge status-${status}">
+                            ${status}
                         </span>
                     </td>
-                    <td>${formatDate(msg.created_at)}</td>
+                    <td>${formatDate(criadoEm)}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
     }
 
